@@ -154,3 +154,121 @@ DROP TABLE shirts;
 DROP DATABASE Shirts;
 
 /* String Functions */
+CREATE TABLE books 
+	(
+		book_id INT NOT NULL AUTO_INCREMENT,
+		title VARCHAR(100),
+		author_fname VARCHAR(100),
+		author_lname VARCHAR(100),
+		released_year INT,
+		stock_quantity INT,
+		pages INT,
+		PRIMARY KEY(book_id)
+	);
+
+  SELECT CONCAT(author_fname," ",author_lname) FROM   books;
+  SELECT author_fname AS first_name ,CONCAT(author_fname," ",author_lname)  FROM   books;
+  SELECT CONCAT_WS(' - ',title,author_fname,author_lname,released_year) FROM books;
+  SELECT SUBSTRING('Hello World',1,4); /* begin from 1,output Hell */
+  SELECT SUBSTRING('Hello World',7); /* from 7 to end */
+  SELECT SUBSTRING('Hello World',-4); /* last 4 */
+  SELECT SUBSTRING(title,1,10) FROM books;
+  SELECT CONCAT(SUBSTRING(title,1,10),"...") AS short_title FROM books;
+  SELECT REPLACE('Hello World','Hell','****');
+  SELECT REPLACE(title,'e','4') FROM books;
+  SELECT REVERSE(released_year) FROM books;
+  SELECT CONCAT(released_year,REVERSE(released_year)) FROM books;
+  SELECT title,CHAR_LENGTH(title) AS length_of_title FROM books ;
+  SELECT UPPER('AaDf');
+  SELECT LOWER('AaDf');
+
+/*   Refining Selections */
+SELECT DISTINCT author_fname FROM books;
+SELECT DISTINCT author_fname,author_lname FROM books;
+SELECT  author_fname FROM books ORDER BY author_fname;
+SELECT  author_fname,author_lname 
+FROM books 
+ORDER BY author_fname,author_lname;
+SELECT title,released_year 
+FROM books 
+ORDER BY released_year DESC
+LIMIT 3;
+/* Equal */ 
+
+SELECT title,released_year 
+FROM books 
+ORDER BY released_year DESC
+LIMIT 0,3; /*  table is 0 starting ,string is 1 starting */
+
+SELECT title,released_year 
+FROM books 
+ORDER BY released_year DESC
+LIMIT 3,18729817928173; /*  max */
+
+SELECT * FROM books WHERE author_fname LIKE '%da%'; /* '%'  match any lenght of char */
+SELECT * FROM books WHERE stock_quantity LIKE '____';   /* '_' only match one char */
+SELECT * FROM books WHERE title LIKE '%\%%';   /* \% mean % \ is escaping sign*/
+SELECT * FROM books WHERE title LIKE '%\_%'; 
+
+
+SELECT title FROM books WHERE title LIKE '%stories%';
+SELECT title,pages FROM books ORDER BY pages DESC LIMIT 1;
+SELECT CONCAT(title,' - ',released_year) FROM books ORDER BY released_year DESC LIMIT 3;
+SELECT title,author_lname FROM books WHERE author_lname LIKE '% %';
+SELECT title,released_year,stock_quantity FROM books ORDER BY stock_quantity,title LIMIT 3;
+SELECT title,author_lname FROM books ORDER BY author_lname,title;
+SELECT CONCAT('MFA is ',author_fname,' ',author_lname ) FROM books ORDER BY author_lname;
+
+/* Aggregate Functions*/
+SELECT COUNT(*) FROM books;
+SELECT COUNT(DISTINCT author_fname) FROM books;
+SELECT COUNT(DISTINCT author_fname,author_lname) FROM books;
+SELECT  title FROM books WHERE title LIKE '%the%';
+
+SELECT author_lname ,COUNT(title)
+FROM books
+GROUP BY author_lname;
+SELECT author_fname,author_lname,COUNT(title)
+FROM books
+GROUP BY author_fname,author_lname;
+SELECT  released_year ,COUNT(released_year) FROM books GROUP BY released_year;
+
+SELECT Min(released_year) FROM books;
+SELECT * FROM books
+WHERE pages=
+(
+     SELECT MAX(pages) FROM books  /* not ; */
+);
+
+SELECT * FROM books
+ORDER BY pages 
+LIMIT 1;
+
+SELECT author_fname,author_lname,MIN(released_year)
+FROM books
+GROUP BY author_fname,author_lname;
+
+SELECT SUM(pages) FROM books;
+
+
+SELECT CONCAT(author_fname,' ',author_lname) AS full_name,SUM(pages)
+FROM books
+GROUP BY author_fname,author_lname;
+
+SELECT AVG(pages) FROM books;
+
+SELECT released_year,AVG(stock_quantity)
+FROM books
+GROUP BY released_year ORDER BY AVG(stock_quantity);
+
+SELECT COUNT(title) FROM books;
+
+SELECT released_year,COUNT(*) FROM books GROUP BY released_year ;
+
+SELECT SUM(stock_quantity) FROM books;
+SELECT  author_fname,author_lname,AVG(released_year) FROM books GROUP BY author_fname,author_lname;
+SELECT CONCAT(author_fname," ",author_lname) FROM books
+ORDER BY pages DESC LIMIT 1;
+SELECT released_year,COUNT(*) AS '# books',
+AVG(pages) AS 'avg pages'
+FROM books GROUP BY released_year ORDER BY released_year;
