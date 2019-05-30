@@ -270,5 +270,318 @@ SELECT  author_fname,author_lname,AVG(released_year) FROM books GROUP BY author_
 SELECT CONCAT(author_fname," ",author_lname) FROM books
 ORDER BY pages DESC LIMIT 1;
 SELECT released_year,COUNT(*) AS '# books',
-AVG(pages) AS 'avg pages'
+AVG(pages) AS 'avg_pages'
 FROM books GROUP BY released_year ORDER BY released_year;
+
+
+/*  Data Types Advanced */
+
+
+CREATE TABLE dogs (name CHAR(5), breed VARCHAR(10));
+INSERT INTO dogs (name, breed) VALUES ('bob', 'beagle'); /* with a empty place */
+INSERT INTO dogs (name, breed) VALUES ('robby', 'corgi');
+INSERT INTO dogs (name, breed) VALUES ('Princess Jane', 'Retriever'); /* name too long ,error , can't insert  */
+
+SELECT * FROM dogs;
+INSERT INTO dogs (name, breed) VALUES ('Jane', 'Retrievesadfdsafdasfsafr');/* breed too long ,alse error , can't insert  */
+SELECT * FROM dogs;
+
+CREATE TABLE items(price DECIMAL(5,2));
+
+INSERT INTO items(price) VALUES(7);
+
+INSERT INTO items(price) VALUES(7987654);/* price too large , error , can't insert  */
+
+INSERT INTO items(price) VALUES(34.88);
+
+INSERT INTO items(price) VALUES(298.9999); /* can insert but lose all digit after decimal point */
+
+INSERT INTO items(price) VALUES(1.9999);/* can insert but lose all digit after decimal point */
+
+SELECT * FROM items;
+
+CREATE TABLE coordinate (x FLOAT);
+
+INSERT INTO coordinate(x) VALUES (88.45); /* OK */
+
+INSERT INTO coordinate(x) VALUES (8877.45); /* OK */
+
+INSERT INTO coordinate(x) VALUES (8877665544.45);/*  lose precision */
+
+SELECT * FROM coordinate;
+
+CREATE TABLE people (name VARCHAR(100), birthdate DATE, birthtime TIME, birthdt DATETIME);
+
+INSERT INTO people (name, birthdate, birthtime, birthdt)
+VALUES('Padma', '1983-11-11', '10:07:35', '1983-11-11 10:07:35');
+
+INSERT INTO people (name, birthdate, birthtime, birthdt)
+VALUES('Larry', '1943-12-205', '04:10:402', '19043-12-25 04:10:42'); /* format error */
+
+SELECT * FROM people;
+SELECT CURDATE(),CURTIME(),NOW() FROM people;
+
+SELECT name, birthdate FROM people;
+
+SELECT name, DAY(birthdate) FROM people;
+
+SELECT name, birthdate, DAY(birthdate) FROM people;
+
+SELECT name, birthdate, DAYNAME(birthdate) FROM people;
+
+SELECT name, birthdate, DAYOFWEEK(birthdate) FROM people;
+
+SELECT name, birthdate, DAYOFYEAR(birthdate) FROM people;
+
+SELECT name, birthtime, DAYOFYEAR(birthtime) FROM people;
+
+SELECT name, birthdt, DAYOFYEAR(birthdt) FROM people;
+
+SELECT name, birthdt, MONTH(birthdt) FROM people;
+
+SELECT name, birthdt, MONTHNAME(birthdt) FROM people;
+
+SELECT name, birthtime, HOUR(birthtime) FROM people;
+
+SELECT name, birthtime, MINUTE(birthtime) FROM people;
+
+SELECT CONCAT(MONTHNAME(birthdate), ' ', DAY(birthdate), ' ', YEAR(birthdate)) FROM people;
+
+SELECT DATE_FORMAT(birthdt, 'Was born on a %W') FROM people;
+
+SELECT DATE_FORMAT(birthdt, '%m/%d/%Y') FROM people;
+
+SELECT DATE_FORMAT(birthdt, '%m/%d/%Y at %h:%i') FROM people;
+
+
+SELECT * FROM people;
+
+SELECT DATEDIFF(NOW(), birthdate) FROM people;
+
+SELECT name, birthdate, DATEDIFF(NOW(), birthdate) FROM people;
+
+SELECT birthdt FROM people;
+
+SELECT birthdt, DATE_ADD(birthdt, INTERVAL 1 MONTH) FROM people;
+
+SELECT birthdt, DATE_ADD(birthdt, INTERVAL 10 SECOND) FROM people;
+
+SELECT birthdt, DATE_ADD(birthdt, INTERVAL 3 QUARTER) FROM people;
+
+SELECT birthdt, birthdt + INTERVAL 1 MONTH FROM people;
+
+SELECT birthdt, birthdt - INTERVAL 5 MONTH FROM people;
+
+SELECT birthdt, birthdt + INTERVAL 15 MONTH + INTERVAL 10 HOUR FROM people;
+
+CREATE TABLE comments (
+    content VARCHAR(100),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+INSERT INTO comments (content) VALUES('lol what a funny article');
+
+INSERT INTO comments (content) VALUES('I found this offensive');
+
+INSERT INTO comments (content) VALUES('Ifasfsadfsadfsad');
+
+SELECT * FROM comments ORDER BY created_at DESC;
+
+CREATE TABLE comments2 (
+    content VARCHAR(100),
+    changed_at TIMESTAMP DEFAULT NOW() ON UPDATE CURRENT_TIMESTAMP
+);
+
+INSERT INTO comments2 (content) VALUES('dasdasdasd');
+
+INSERT INTO comments2 (content) VALUES('lololololo');
+
+INSERT INTO comments2 (content) VALUES('I LIKE CATS AND DOGS');
+
+UPDATE comments2 SET content='THIS IS NOT GIBBERISH' WHERE content='dasdasdasd';
+
+SELECT * FROM comments2;
+
+SELECT * FROM comments2 ORDER BY changed_at;
+
+CREATE TABLE comments3 (
+    content VARCHAR(100),
+    changed_at TIMESTAMP DEFAULT NOW() ON UPDATE NOW()
+    /*same as  changed_at TIMESTAMP DEFAULT NOW() ON UPDATE CURRENT_TIMESTAMP */
+);
+INSERT INTO comments3 (content) VALUES('dasdasdasd');
+
+INSERT INTO comments3 (content) VALUES('lololololo');
+
+INSERT INTO comments3 (content) VALUES('I LIKE CATS AND DOGS');
+UPDATE comments3 SET content='THIS IS NOT GIBBERISH' WHERE content='dasdasdasd';
+
+SELECT CURTIME();
+
+SELECT DAY(NOW());
+SELECT DAYOFWEEK(NOW());
+SELECT DATE_FORMAT(NOW(),'%w');
+SELECT DATE_FORMAT(NOW(),'%w');
+SELECT DATE_FORMAT(NOW(),'%W');
+SELECT DATE_FORMAT(NOW(),'%w');
+SELECT DATE_FORMAT(NOW(),'%m/%d/%Y');
+SELECT DATE_FORMAT(NOW(),'%M %D at %h:%i');
+
+CREATE TABLE tweets_1(
+     name_id INT,
+    content VARCHAR(140),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+/* Logical Operators */
+SELECT title FROM books WHERE released_year = 2017;
+
+SELECT title FROM books WHERE released_year != 2017;
+
+SELECT title, author_lname FROM books;
+
+SELECT title, author_lname FROM books WHERE author_lname = 'Harris';
+
+SELECT title, author_lname FROM books WHERE author_lname != 'Harris';
+
+SELECT title FROM books WHERE title LIKE 'W%';
+
+SELECT title FROM books WHERE title NOT LIKE 'W%';
+
+SELECT title, released_year FROM books ORDER BY released_year;
+
+SELECT title, released_year FROM books 
+WHERE released_year > 2000 ORDER BY released_year;
+
+SELECT title, released_year FROM books 
+WHERE released_year >= 2000 ORDER BY released_year;
+
+SELECT title, stock_quantity FROM books;
+
+SELECT title, stock_quantity FROM books WHERE stock_quantity >= 100;
+
+SELECT 99 > 1; /*  return 1 */
+
+SELECT 99 > 567;  /* return 0 */
+
+SELECT title, released_year FROM books;
+
+SELECT title, released_year FROM books
+WHERE released_year < 2000;
+
+SELECT title, released_year FROM books
+WHERE released_year <= 2000;
+
+
+SELECT  
+    title, 
+    author_lname, 
+    released_year FROM books
+WHERE author_lname='Eggers' 
+    AND released_year > 2010;
+
+SELECT * 
+FROM books
+WHERE author_lname='Eggers' 
+    AND released_year > 2010 
+    && title LIKE '%novel%';
+
+
+SELECT title, 
+       author_lname, 
+       released_year, 
+       stock_quantity 
+FROM   books 
+WHERE  author_lname = 'Eggers' 
+              || released_year > 2010 
+              OR     stock_quantity > 100;
+
+SELECT title, released_year FROM books WHERE released_year >= 2004 && released_year <= 2015;
+
+SELECT title, released_year FROM books 
+WHERE released_year BETWEEN 2004 AND 2015;
+
+SELECT title, released_year FROM books 
+WHERE released_year NOT BETWEEN 2004 AND 2015;
+
+SELECT CAST('2017-05-02' AS DATETIME);
+
+SELECT name, birthdt FROM people WHERE birthdt BETWEEN '1980-01-01' AND '2000-01-01';
+
+SELECT 
+    name, 
+    birthdt 
+FROM people
+WHERE 
+    birthdt BETWEEN CAST('1980-01-01' AS DATETIME)
+    AND CAST('2000-01-01' AS DATETIME);
+
+SELECT title, author_lname FROM books
+
+SELECT title, author_lname FROM books
+WHERE author_lname IN ('Carver', 'Lahiri', 'Smith');
+SELECT title, released_year FROM books
+WHERE released_year NOT IN 
+(2000,2002,2004,2006,2008,2010,2012,2014,2016);
+
+SELECT title, released_year,
+       CASE 
+         WHEN released_year >= 2000 THEN 'Modern Lit'
+         ELSE '20th Century Lit'
+       END AS GENRE
+FROM books;
+
+SELECT title, stock_quantity,
+    CASE 
+        WHEN stock_quantity BETWEEN 0 AND 50 THEN '*'
+        WHEN stock_quantity BETWEEN 51 AND 100 THEN '**'
+        WHEN stock_quantity BETWEEN 101 AND 150 THEN '***'
+        ELSE '****'
+    END AS STOCK
+FROM books;
+
+/* same as  */
+SELECT title, stock_quantity,
+    CASE 
+        WHEN stock_quantity <= 50 THEN '*'  /*  order importance ,only match only */
+        WHEN stock_quantity <= 100 THEN '**'
+        ELSE '***'
+    END AS STOCK
+FROM books; 
+
+
+SELECT title,released_year FROM books 
+WHERE released_year<1980;
+
+SELECT title,author_lname FROM books
+WHERE author_lname IN ('Eggers','Chabon');
+
+SELECT title,author_fname,author_lname,released_year FROM books
+WHERE released_year>=2000
+&&(author_fname='Lahiri'||  author_lname='Lahiri');
+
+SELECT title,pages FROM books
+WHERE pages BETWEEN 100 AND 200;
+
+SELECT title,author_lname FROM books
+WHERE author_lname LIKE 'C%' ||author_lname LIKE 'S%';
+
+SELECT title,author_lname FROM books
+WHERE SUBSTRING(author_lname,1,1) IN ('C','S');
+
+SELECT title,author_lname,
+CASE
+   WHEN title LIKE '%Kids%' ||title LIKE '%Heartbreaking%' THEN 'Memoir'
+   WHEN title LIKE '%stories'  THEN 'Short_Stories'
+   ELSE 'Novel'
+END AS TYPE 
+FROM books;
+
+SELECT title,author_lname,
+CASE 
+   WHEN COUNT(title)=1 THEN CONCAT(COUNT(title),' book')
+   ELSE CONCAT(COUNT(title),' books')
+END AS 'COUNT'
+FROM books GROUP BY author_lname;
+
+/* Multi Table, One to Many */
