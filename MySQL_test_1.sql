@@ -585,3 +585,126 @@ END AS 'COUNT'
 FROM books GROUP BY author_lname;
 
 /* Multi Table, One to Many */
+CREATE TABLE customers(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    email VARCHAR(100)
+);
+CREATE TABLE orders(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_date DATE,
+    amount DECIMAL(8,2),
+    customer_id INT,
+    FOREIGN KEY(customer_id) REFERENCES customers(id)  /* foreign key */
+);
+
+INSERT INTO orders (order_date, amount, customer_id)
+VALUES ('2016/06/06', 33.67, 98); /* error if not user have id of 98 */
+
+SELECT * FROM orders WHERE customer_id=
+(
+  SELECT id FROM customers
+  WHERE last_name='George'
+
+
+);
+
+SELECT * FROM customers ,orders; /* cross join, all combinaion */
+SELECT * FROM customers ,orders WHERE customers.id=orders.customer_id; /* inner join ,impilict */
+SELECT * FROM customers 
+INNER JOIN orders
+ON  customers.id=orders.customer_id; /* inner join ,expilict */
+
+SELECT first_name,last_name,SUM(amount) AS total_spent FROM customers 
+INNER JOIN orders
+ON  customers.id=orders.customer_id
+GROUP BY customer_id
+ORDER BY total_spent DESC;
+/* operate on join table */
+
+SELECT first_name,
+           last_name,
+           IFNULL(SUM(amount) ,0) AS total_spent/*   avoid NULL */
+FROM customers 
+LEFT JOIN orders
+ON  customers.id=orders.customer_id
+GROUP BY customers.id
+ORDER BY total_spent DESC;
+ 
+ SELECT *
+ FROM customers 
+RIGHT JOIN orders
+ON  customers.id=orders.customer_id;
+ /* in this case ,same as INNER JOIN */
+
+  SELECT *
+ FROM customers 
+RIGHT JOIN orders
+ON  customers.id=orders.amount;
+ /* in this case ,left are all null */
+
+CREATE TABLE customers_wdc(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    email VARCHAR(100)
+);
+CREATE TABLE orders_wdc(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_date DATE,
+    amount DECIMAL(8,2),
+    customer_id INT,
+    FOREIGN KEY(customer_id) 
+     REFERENCES customers_wdc(id) 
+       ON DELETE CASCADE/*   turn on ON DELETE CASCADE */
+     /* foreign key */
+);
+DELETE FROM customers_wdc WHERE first_name='boy';
+/* order with customer_id=1 also deleted */
+
+CREATE TABLE students(
+   id INT NOT NULL AUTO_INCREMENT,
+   first_name VARCHAR(20),
+   PRIMARY KEY(id)
+);
+CREATE TABLE papers(
+   title VARCHAR(200),
+   grade INT,
+   student_id INT,
+   FOREIGN KEY (student_id)
+   REFERENCES students(id)
+);
+SELECT first_name,title,grade FROM  students
+INNER JOIN papers
+ON students.id=papers.student_id;
+
+SELECT first_name,title,grade FROM  students
+INNER JOIN papers
+ON students.id=papers.student_id
+ORDER BY grade DESC;
+
+SELECT first_name,title,grade FROM  students
+LEFT JOIN papers
+ON students.id=papers.student_id;
+
+SELECT first_name,
+             AVG(IFNULL(grade,0)) AS average
+FROM  students
+LEFT JOIN papers
+ON students.id=papers.student_id
+GROUP BY students.id
+ORDER BY average DESC; 
+
+
+SELECT first_name,
+             AVG(IFNULL(grade,0)) AS average,
+             CASE
+            WHEN AVG(IFNULL(grade,0))>=60 THEN 'PASSING'
+            ELSE  'FAILING'
+             END AS passing_status
+FROM  students
+LEFT JOIN papers
+ON students.id=papers.student_id
+GROUP BY students.id
+ORDER BY average DESC; 
