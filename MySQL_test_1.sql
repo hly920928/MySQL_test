@@ -708,3 +708,93 @@ LEFT JOIN papers
 ON students.id=papers.student_id
 GROUP BY students.id
 ORDER BY average DESC; 
+
+
+/*  Many to Many */
+CREATE TABLE reviewers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100)
+);
+
+CREATE TABLE series(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(100),
+    released_year YEAR(4),
+    genre VARCHAR(100)
+);
+
+CREATE TABLE reviews (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    rating DECIMAL(2,1),
+    series_id INT,
+    reviewer_id INT,
+    FOREIGN KEY(series_id) REFERENCES series(id),
+    FOREIGN KEY(reviewer_id) REFERENCES reviewers(id)
+);
+SELECT title,rating FROM series
+INNER JOIN reviews
+ON series.id=reviews.series_id 
+&& title IN ('Archer','Arrested Development',"Bob's Burgers");
+
+SELECT title,AVG(rating) AS avg_rating FROM series
+INNER JOIN reviews
+ON series.id=reviews.series_id 
+GROUP BY series.id
+ORDER BY avg_rating;
+
+SELECT first_name,last_name,rating FROM reviewers
+INNER JOIN reviews
+ON reviews.reviewer_id=reviewers.id
+&& reviewers.first_name in ('Thomas','Wyatt','Kimbra'); 
+
+SELECT title AS unreviewed_series FROM
+ () AS TABLE_1
+WHERE Rating=-1;
+
+SELECT title AS unreviewed_series    FROM series
+LEFT JOIN reviews
+ON series.id=reviews.series_id
+WHERE rating IS NULL;
+
+SELECT genre,ROUND(AVG(rating),2) FROM series
+INNER JOIN  reviews
+ ON series.id=reviews.series_id
+ GROUP BY genre;
+
+
+ SELECT first_name,last_name,
+     IFNULL(COUNT(rating),0) AS COUNT, 
+     IFNULL( MIN(rating),0) AS MIN,  IFNULL(MAX(rating),0) AS MAX,
+  IFNULL(AVG(rating),0)AS AVG,
+/*   CASE 
+WHEN COUNT(rating)=0 THEN 'INACTIVE'
+ELSE 'ACTIVE' 
+END AS STATUS */
+IF(COUNT(rating)>=1,'ACTIVE','INACTIVE') AS STATUS
+FROM reviewers
+LEFT JOIN reviews
+ ON reviewers.id=reviews.reviewer_id
+ GROUP BY reviewers.id
+ ORDER BY MAX DESC;
+ 
+
+ SELECT title,rating,CONCAT(first_name,' ',last_name) AS reviewer
+ FROM (
+   SELECT title ,rating,reviews.reviewer_id AS _reviewer_id
+   FROM series 
+   INNER JOIN reviews
+   ON series.id=reviews.series_id
+   WHERE title IN ( 'Archer','Arrested Development',"Bob's Burgers")
+ ) AS TABLE_1
+ INNER JOIN reviewers
+ ON _reviewer_id=reviewers.id;
+
+
+ SELECT title,rating,CONCAT(first_name,' ',last_name) AS reviewer
+  FROM series 
+   INNER JOIN reviews
+   ON series.id=reviews.series_id
+ INNER JOIN reviewers
+ ON reviewer_id=reviewers.id
+    WHERE title IN ( 'Archer','Arrested Development',"Bob's Burgers");
